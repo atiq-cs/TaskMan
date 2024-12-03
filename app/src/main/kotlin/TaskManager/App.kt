@@ -1,4 +1,4 @@
-/*
+/**
  * Author: Atiq Rahman
  */
 
@@ -26,34 +26,37 @@ class Timer(timeStr: String, msg: String) {
   }
 
   // constructor for second param
-  private val purposeMsg = msg
+  private val MESSAGE = msg
   private var remainingSeconds = 0L
-  private var totalSeconds = time.toSecondOfDay().toLong()
+  private val TOTAL_SECONDS = time.toSecondOfDay().toLong()
 
 
+  /**
+   * Run the program with async / kotline coroutine support
+   */
   fun runAsync() = runBlocking {
-    remainingSeconds = totalSeconds
+    remainingSeconds = TOTAL_SECONDS
 
     // To print 00:00:00 first time
     time = LocalTime.ofSecondOfDay(0)
 
-    // Launch a coroutine to repeatedly print a message every 5 Seconds
+    // Launch a coroutine to repeatedly print a message every few Seconds
     val job = async {
-      repeatTaskEvery5Seconds()
+      repeatTask()
     }
 
     // Let it run for a specified amount of time, Seconds converted from time
-    delay(totalSeconds*1000L)
+    delay(TOTAL_SECONDS*1000L)
     // Cancel the task after specified time above
     job.cancelAndJoin()
 
-    time = LocalTime.ofSecondOfDay(totalSeconds)
+    time = LocalTime.ofSecondOfDay(TOTAL_SECONDS)
     val formatter = DateTimeFormatter.ofPattern("HH:mm:ss") // 24-hour format
     val formattedTime = time.format(formatter)
     print("\rElapsed $formattedTime")
 
     val title = "Task Timer"
-    sendNotification(title, purposeMsg+" (" + time + ")")
+    sendNotification(title, MESSAGE+" (" + time + ")")
   }
 
   private fun sendNotification(title: String, message: String) {
@@ -67,25 +70,31 @@ class Timer(timeStr: String, msg: String) {
       e.printStackTrace()
       println("Failed to send notification.")
     }
-
   }
 
-  private suspend fun repeatTaskEvery5Seconds() = coroutineScope {
-    while (isActive) { // Ensures the coroutine checks for cancellation
-      // Format the time, so it's fixed length to avoid prints like 01:20
-      //  instead of 00:01:20, otherwise linefeed is not enough to clear up
-      //  current line for printing like a timer
-
-      // Define the custom format
+  /**
+   * Repeat task on specified [interval] in seconds
+   */
+  private suspend fun repeatTask(interval: Int = 5) = coroutineScope {
+    while (isActive) { // cancellable computation loop
+      /**
+       * Format the time, so it's fixed length to avoid prints like 01:20
+       * instead of 00:01:20, otherwise linefeed is not enough to clear up
+       * current line for printing like a timer.
+       * 
+       * Print time in custom format.
+       */
       val formatter = DateTimeFormatter.ofPattern("HH:mm:ss") // 24-hour format
       val formattedTime = time.format(formatter)
       print("\rElapsed $formattedTime")
 
-      if (remainingSeconds >= 5) {
-        remainingSeconds -= 5
-        val elapsedSeconds = totalSeconds - remainingSeconds
+      if (remainingSeconds >= interval) {
+        remainingSeconds -= interval
+        val elapsedSeconds = TOTAL_SECONDS - remainingSeconds
         time = LocalTime.ofSecondOfDay(elapsedSeconds)
-        delay(5000L) // Pause for 5 seconds
+
+        // Pause for i seconds
+        delay(interval * 1000L) 
       }
       else {
         delay(remainingSeconds * 1000L)
@@ -96,11 +105,11 @@ class Timer(timeStr: String, msg: String) {
 
   // Test Helpers
   fun getMessage(): String {
-    return purposeMsg
+    return MESSAGE
   }
 
   fun getSeconds(): Long {
-    return totalSeconds
+    return TOTAL_SECONDS
   }  
 }
 
@@ -116,11 +125,7 @@ fun main(args: Array<String>) {
     return
   }
 
-  var msg = "Timer expires"
-  if (args.size==2)
-    msg = args[1]
-
   // Timer constructor is responsible for parsing and processing the CL
   // arguments
-  Timer(args[0], msg).runAsync()
+  Timer(args[0], if (args.size==2) args[1] else "Timer expires").runAsync()
 }

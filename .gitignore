@@ -9,3 +9,6 @@ app/build
 
 # app data files
 app/data
+
+# kotlin compiler session files
+.kotlin
