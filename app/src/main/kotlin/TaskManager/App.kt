@@ -13,50 +13,57 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 
-class Timer(timeStr: String, msg: String) {
+class Timer {
   private var time = LocalTime.of(0, 0, 0)
-  // constructor for first param
-  init {
+  private var message = ""
+  private var totalSeconds = 0L
+
+  // secondary constructor to initialize private properties
+  constructor(
+    timeStr: String,
+    msg: String,
+  ) {
     val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+
     try {
       time = LocalTime.parse(timeStr, formatter)
     } catch (e: DateTimeParseException) {
       throw IllegalArgumentException("Invalid time format ${e.message}!")
     }
+
+    message = msg
+    totalSeconds = time.toSecondOfDay().toLong()
   }
 
-  // constructor for second param
-  private val MESSAGE = msg
+  // executes before secondary constructor
   private var remainingSeconds = 0L
-  private val TOTAL_SECONDS = time.toSecondOfDay().toLong()
-
 
   /**
-   * Run the program with async / kotline coroutine support
+   * Run the program with async / kotlin coroutine support
    */
   fun runAsync() = runBlocking {
-    remainingSeconds = TOTAL_SECONDS
+    remainingSeconds = totalSeconds
 
     // To print 00:00:00 first time
     time = LocalTime.ofSecondOfDay(0)
 
-    // Launch a coroutine to repeatedly print a message every few Seconds
+    // Launch a coroutine to repeatedly print a message every few seconds
     val job = async {
       repeatTask()
     }
 
     // Let it run for a specified amount of time, Seconds converted from time
-    delay(TOTAL_SECONDS*1000L)
+    delay(totalSeconds*1000L)
     // Cancel the task after specified time above
     job.cancelAndJoin()
 
-    time = LocalTime.ofSecondOfDay(TOTAL_SECONDS)
+    time = LocalTime.ofSecondOfDay(totalSeconds)
     val formatter = DateTimeFormatter.ofPattern("HH:mm:ss") // 24-hour format
     val formattedTime = time.format(formatter)
     print("\rElapsed $formattedTime")
 
     val title = "Task Timer"
-    sendNotification(title, MESSAGE+" (" + time + ")")
+    sendNotification(title, message+" (" + time + ")")
   }
 
   private fun sendNotification(title: String, message: String) {
@@ -90,7 +97,7 @@ class Timer(timeStr: String, msg: String) {
 
       if (remainingSeconds >= interval) {
         remainingSeconds -= interval
-        val elapsedSeconds = TOTAL_SECONDS - remainingSeconds
+        val elapsedSeconds = totalSeconds - remainingSeconds
         time = LocalTime.ofSecondOfDay(elapsedSeconds)
 
         // Pause for i seconds
@@ -105,11 +112,11 @@ class Timer(timeStr: String, msg: String) {
 
   // Test Helpers
   fun getMessage(): String {
-    return MESSAGE
+    return message
   }
 
   fun getSeconds(): Long {
-    return TOTAL_SECONDS
+    return totalSeconds
   }  
 }
 
@@ -125,7 +132,10 @@ fun main(args: Array<String>) {
     return
   }
 
-  // Timer constructor is responsible for parsing and processing the CL
-  // arguments
+  /**
+   * Timer constructor is responsible for parsing and processing the CL
+   * arguments
+   * Create instance of class Timer and call runAsync()
+   */
   Timer(args[0], if (args.size==2) args[1] else "Timer expires").runAsync()
 }
