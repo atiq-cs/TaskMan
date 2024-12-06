@@ -22,6 +22,14 @@ class Timer {
     val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
     try {
+      /**
+       * TODO: write a more flexible, custom parser instead, to support args
+       *    like 02:30, 00:10:00, 2:5, 5 and so on.
+       *
+       * if we ever wanna manually tokenize here's example previous
+       * implementation of timer
+       *   https://github.dev/atiq-cs/cpp/blob/dev/Console/P01_Timer/Main.cpp
+       */
       time = LocalTime.parse(timeStr, formatter)
     } catch (e: DateTimeParseException) {
       throw IllegalArgumentException("Invalid time format ${e.message}!")
@@ -60,6 +68,10 @@ class Timer {
 
     val title = "Task Timer"
     sendNotification(title, message+" (" + time + ")")
+
+    if (message.startsWith("Bl ") || message.startsWith("Bloomberg ") || 
+        message.startsWith("bloomberg "))
+      launchExternalProcess()
   }
 
   private fun sendNotification(title: String, message: String) {
@@ -105,6 +117,16 @@ class Timer {
       }
     }
   }
+
+  private suspend fun launchExternalProcess() {
+    val process = ProcessBuilder("google-chrome", "https://www.bloomberg.com/live").start()
+     
+    // Wait for the process to complete and get the exit code
+    val exitCode = process.waitFor()
+    if (exitCode != 0)
+      println("Process exited with code: $exitCode")
+  }
+
 
   // Test Helpers
   fun getMessage(): String {
