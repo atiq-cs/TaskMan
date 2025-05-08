@@ -1,6 +1,8 @@
 ### Task Manager
 Manage tasks and trigger notifications
 
+**TODO**: *write a QT based GUI application with IPC from terminal to replace this.*
+
 **Supported platforms**
 
 Platforms that runs kotlin
@@ -17,6 +19,12 @@ Trigger a notification after 10 minutes, message "Ergonomic switch" passed along
 ```bash
 gradle run --args="00:00:10 'Ergonomic switch'"
 ```
+
+Open Bloomberg Live streaming URL as well after 5 minutes,
+```bash
+gradle run --args="00:05:00 'Bl Close - Show by Bloomberg'"
+```
+
 
 Screenshot looks like following,
 
