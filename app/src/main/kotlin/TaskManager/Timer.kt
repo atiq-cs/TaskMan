@@ -64,7 +64,8 @@ class Timer {
     time = LocalTime.ofSecondOfDay(totalSeconds)
     val formatter = DateTimeFormatter.ofPattern("HH:mm:ss") // 24-hour format
     val formattedTime = time.format(formatter)
-    print("\rElapsed $formattedTime")
+    // Add a new line after last print of elapsed time
+    println("\rElapsed $formattedTime")
 
     val title = "Task Timer"
     sendNotification(title, message+" (" + time + ")")
