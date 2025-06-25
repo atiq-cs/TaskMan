@@ -70,8 +70,7 @@ class Timer {
     val title = "Task Timer"
     sendNotification(title, message+" (" + time + ")")
 
-    if (message.startsWith("Bl ") || message.startsWith("Bloomberg ") || 
-        message.startsWith("bloomberg "))
+    if (message.startsWith("Bl_Live"))
       launchExternalProcess()
   }
 

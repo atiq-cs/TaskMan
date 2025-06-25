@@ -22,7 +22,12 @@ gradle run --args="00:00:10 'Ergonomic switch'"
 
 Open Bloomberg Live streaming URL as well after 5 minutes,
 ```bash
-gradle run --args="00:05:00 'Bl Close - Show by Bloomberg'"
+gradle run --args="00:05:00 'Bl_Live - Closing Session'"
+```
+
+I like the run to be way quieter. Hence, I use following version of gradle run,
+```bash
+gradle run --quiet --console=plain --args="00:10:00 'Ergonomic switch'"
 ```
 
 
