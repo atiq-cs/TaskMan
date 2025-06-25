@@ -6,10 +6,23 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
+// Added for 'refreshVersions'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+    plugins {
+        id("de.fayard.refreshVersions") version "0.60.5"
+    }
+}
+
 plugins {
     // Apply the foojay-resolver plugin to allow automatic download of JDKs
     // id("org.gradle.toolchains.foojay-resolver-convention")
+    // Auto upgrade dep versions
+    id("de.fayard.refreshVersions")
 }
+
 
 rootProject.name = "TaskManager"
 include("app")
